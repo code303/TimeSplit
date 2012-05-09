@@ -30,7 +30,7 @@ namespace TimeSplit
 		public TimeSplitter()
 		{
 			// ToDo: letzten Projekte laden
-			_projects = ReadProjectsFromLastRun();
+			//_projects = ReadProjectsFromLastRun();
 
 			if (_projects.Count < 1)
 			{
