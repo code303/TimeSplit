@@ -14,7 +14,6 @@ namespace TimeSplit
 	{
 		private TimeSplitter _timeSplitter;
 		private System.Timers.Timer _timer;
-		private FormReport _reportForm;
 
 		delegate void UICallback();
 
@@ -114,10 +113,30 @@ namespace TimeSplit
 			
 			System.Windows.Forms.Control.ControlCollection collection = this.Controls;
 			
+
+			
 			foreach (Control c in collection)
 			{
-				if (c.Name.StartsWith("button"))
-					c.BackColor = System.Drawing.SystemColors.Control;
+				if (c.Name.StartsWith("tabControl1"))
+				{
+					System.Windows.Forms.Control.ControlCollection coll2 = c.Controls;
+			
+					foreach (Control cc in coll2)
+					{
+						if (cc.Name.StartsWith("tabPageTimeSplit"))
+						{
+							foreach (Control ccc in cc.Controls)
+							{
+								if (ccc.Name.StartsWith("button"))
+									ccc.BackColor = System.Drawing.SystemColors.Control;
+							}
+						}
+
+						
+					}
+				}
+
+				
 			}
 			Button b = sender as Button;
 			b.BackColor = Color.LightGreen;
@@ -153,31 +172,12 @@ namespace TimeSplit
 			_timeSplitter.CreateReport();
 		}
 
-		private void toolStripStatusLabelReportfolder_Click(object sender, EventArgs e)
-		{
-			if (_reportForm != null)
-			{
-				_reportForm.Close();
-			}
-			_reportForm = new FormReport();
-			Control[] controls = _reportForm.Controls.Find("labelReport", true);
-			string report = GetLastReport();
 
-			if (!string.IsNullOrEmpty(report))
-			{
-				StreamReader reader = new StreamReader(report);
-				_reportForm.Text = (new FileInfo(report)).CreationTime.ToString("dd.MM.yyyy");
-				controls[0].Text = reader.ReadToEnd();
-				reader.Close();
-			}
-			else
-			{
-				controls[0].Text = "- no report available -";
-			}
 
-			_reportForm.Show();
-		}
-
+		/// <summary>
+		/// Returns the full path and filename of the most recent report
+		/// </summary>
+		/// <returns>Full path and filename of the most recent report</returns>
 		private string GetLastReport()
 		{
 			string report = "";
@@ -204,6 +204,32 @@ namespace TimeSplit
 			int.TryParse((sender as TextBox).Text, out korrektur);
 			int project = int.Parse((string)(sender as Control).Tag)-1;
 			_timeSplitter.Projects[project].AdjustMinutes = korrektur;
+		}
+
+		private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if ((sender as TabControl).SelectedTab.Name == "tabPageTimeSplit")
+			{
+				this.TopMost = false;
+			}
+			else
+			{
+				this.TopMost = true;
+				string reportFileName = GetLastReport();
+
+				if (!string.IsNullOrEmpty(reportFileName))
+				{
+				    StreamReader reader = new StreamReader(reportFileName);
+					labelReportDate.Text = (new FileInfo(reportFileName)).CreationTime.ToString("dd.MM.yyyy");
+				    labelReport.Text = reader.ReadToEnd();
+				    reader.Close();
+				}
+				else
+				{
+					labelReportDate.Text = "";
+					labelReport.Text = "- no report available -";
+				}
+			}
 		}
 	}
 }
