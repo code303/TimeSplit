@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const timer = require('./timer.js');
 const Project = require('./project.js');
 const fs = require('fs');
@@ -18,8 +18,9 @@ const createWindow = function createWindow() {
             nodeIntegration: true
         }
     });
-
+    
     win.loadFile('index.html');
+    win.webContents.openDevTools();
 
     if (!currentProjectId) {
         projects = createDefaultProjects();
@@ -86,7 +87,6 @@ const setFocus = function setFocus(project) {
     // set new current project
 }
 app.on('ready', createWindow);
-
 process.on('exit', () => {
     timer.stop = Date.now();
     getProjectFromId(projects, timer.currentProjectId).addMilliSeconds(timer.stop - timer.start);
@@ -103,4 +103,11 @@ app.on('activate', () => {
     if (win === null) {
         createWindow();
     }
+
+});
+
+ipcMain.on('switchFocus', function (event, arg) {
+    console.log('Received event [switchFocus]: ' + JSON.stringify(arg));
+    setFocus(getProjectFromId(projects, arg));
+    event.reply('switchFocusReply', 'ok');
 });
