@@ -20,10 +20,7 @@ const createWindow = function createWindow() {
     });
     
     win.loadFile('index.html');
-    win.webContents.on('did-finish-load', () => {
-        win.webContents.send('projects', 'whoooooooh!');
-    });
-    
+
     win.webContents.openDevTools();
 
     if (!currentProjectId) {
@@ -32,6 +29,10 @@ const createWindow = function createWindow() {
         timer.currentProjectId = 1;
         currentProjectId = 1;
     }
+
+    win.webContents.on('did-finish-load', () => {
+        win.webContents.send('projects', projects);
+    });
 
     win.on('closed', () => {
         win = null;
@@ -42,10 +43,11 @@ const createDefaultProjects = function createDefaultProjects() {
     return [
         new Project(0, 'Pause', ''),
         new Project(1, 'Orga', 'RnD Emails, OpenAir, iTrac'),
-        new Project(2, 'Development', ''),
-        new Project(3, 'Bugfixing', ''),
-        new Project(4, 'Doc', ''),
-        new Project(5, 'Research', '')
+        new Project(2, 'Test', ''),
+        new Project(3, 'Development', ''),
+        new Project(4, 'Bugfixing', ''),
+        new Project(5, 'Doc', ''),
+        new Project(6, 'Research', '')
     ]
 }
 
