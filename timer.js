@@ -1,7 +1,7 @@
 const timer = {
     start: 0,
     stop: 0,
-    currentProject: 'RnD Emails, OpenAir, iTrac',
-    projects: []
+    currentProjectId: 0,
 };
+
 module.exports = timer;

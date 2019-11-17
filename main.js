@@ -7,75 +7,100 @@ const os = require('os');
 
 let win;
 const homeDir = os.homedir();
-const projects = [];
+let projects = null;
 let currentProjectId = null;
 
-const createWindow = function createWindow () {
-  win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  });
+const createWindow = function createWindow() {
+    win = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            nodeIntegration: true
+        }
+    });
 
-  win.loadFile('index.html');
-  timer.start = Date.now();
-  let defaultProject = new Project(0, 'Orga', 'RnD Emails, OpenAir, iTrac');
-  projects.push(defaultProject);
-  currentProjectId = defaultProject.id;
-  win.on('closed', () => {
-    win = null;
-  });
+    win.loadFile('index.html');
+
+    if (!currentProjectId) {
+        projects = createDefaultProjects();
+        timer.start = Date.now();
+        timer.currentProjectId = 1;
+        currentProjectId = 1;
+    }
+
+    win.on('closed', () => {
+        win = null;
+    });
+}
+
+const createDefaultProjects = function createDefaultProjects() {
+    return [
+        new Project(0, 'Pause', ''),
+        new Project(1, 'Orga', 'RnD Emails, OpenAir, iTrac'),
+        new Project(2, 'Development', ''),
+        new Project(3, 'Bugfixing', ''),
+        new Project(4, 'Doc', ''),
+        new Project(5, 'Research', '')
+    ]
+}
+
+const getProjectFromId = function getProjectFromId(projects, id) {
+    for (let i = 0; i < projects.length; i++) {
+        if (projects[i].id === id) {
+            return projects[i];
+        }
+    }
+    throw {error: 'Could not find project for id ' + id};
 }
 
 const saveReport = function saveReport(projects) {
-  const dir = path.join(homeDir, 'ts');
-  const yyyymmdd =  (new Date().toISOString().split('T'))[0];
-  const fileName = 'TimeSplit_' + yyyymmdd + '.csv';
-  const csvString = createCsvString(projects);
-  writeFile(dir, fileName, csvString);
+    const dir = path.join(homeDir, 'ts');
+    const yyyymmdd = (new Date().toISOString().split('T'))[0];
+    const fileName = 'TimeSplit_' + yyyymmdd + '.csv';
+    const csvString = createCsvString(projects);
+    writeFile(dir, fileName, csvString);
 };
 
 const createCsvString = function createCsvString(projects) {
-  let csv = '';
-  for (let i = 0; i < projects.length; i++) {
-    csv += (i === 0) ? '' : '\n';
-    csv += projects[i].toCsvRecord(); 
-  }
-  return csv;
+    let csv = '';
+    for (let i = 0; i < projects.length; i++) {
+        if (projects[i].elapsedTime > 0) {
+            csv += (csv.length === 0) ? '' : '\n';
+            csv += projects[i].toCsvRecord();
+        }
+    }
+    return csv;
 }
 
 const writeFile = function writeFile(directory, fileName, content) {
-  // console.log('Writing file to ' + path.join(directory, fileName));
-  if (!fs.existsSync(directory)) {
-    fs.mkdirSync(directory);
-  }
-  fs.writeFileSync(path.join(directory, fileName), JSON.stringify(content) );
+    // console.log('Writing file to ' + path.join(directory, fileName));
+    if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory);
+    }
+    fs.writeFileSync(path.join(directory, fileName), content);
 }
 
 const setFocus = function setFocus(project) {
-  // save elapsed time to current project
-  // reset timer
-  // set new current project
+    // save elapsed time to current project
+    // reset timer
+    // set new current project
 }
 app.on('ready', createWindow);
 
 process.on('exit', () => {
-  timer.stop = Date.now();
-    projects[0].addMilliSeconds(timer.stop - timer.start);
+    timer.stop = Date.now();
+    getProjectFromId(projects, timer.currentProjectId).addMilliSeconds(timer.stop - timer.start);
     saveReport(projects);
-    console.log(`Timer ran for ${(projects[0].elapsedTime) / 1000} seconds.`);
 });
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-    app.quit();
-  }
+        app.quit();
+    }
 });
 
 app.on('activate', () => {
-  if (win === null) {
-    createWindow();
-  }
+    if (win === null) {
+        createWindow();
+    }
 });
