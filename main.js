@@ -20,6 +20,10 @@ const createWindow = function createWindow() {
     });
     
     win.loadFile('index.html');
+    win.webContents.on('did-finish-load', () => {
+        win.webContents.send('projects', 'whoooooooh!');
+    });
+    
     win.webContents.openDevTools();
 
     if (!currentProjectId) {
