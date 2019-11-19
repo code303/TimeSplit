@@ -31,7 +31,7 @@ const createWindow = function createWindow() {
     }
 
     win.webContents.on('did-finish-load', () => {
-        win.webContents.send('projects', projects);
+        win.webContents.send('projects', {projects: projects, currentProjectId: currentProjectId});
     });
 
     win.on('closed', () => {

@@ -1,0 +1,16 @@
+button {
+    background-color: #e7e7e7; /* Green */
+    border: none;
+    color: black;
+    padding: 3px 5px;
+    margin: 2px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button.active {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+}
