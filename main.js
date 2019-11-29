@@ -31,7 +31,10 @@ const createWindow = function createWindow() {
     }
 
     win.webContents.on('did-finish-load', () => {
-        win.webContents.send('projects', {projects: projects, currentProjectId: currentProjectId});
+        win.webContents.send('projects', {
+            projects: projects,
+            currentProjectId: currentProjectId
+        });
     });
 
     win.on('closed', () => {
@@ -87,12 +90,21 @@ const writeFile = function writeFile(directory, fileName, content) {
     fs.writeFileSync(path.join(directory, fileName), content);
 }
 
-const setFocus = function setFocus(project) {
+const setFocus = function setFocus(newProject, timer) {
     // save elapsed time to current project
+    timer.stop = Date.now();
+    const currentProject = getProjectFromId(projects, timer.currentProjectId);
+    currentProject.addMilliSeconds(timer.stop - timer.start);
+    
     // reset timer
-    // set new current project
+    timer.stop = 0;
+    timer.start = 0;
+    timer.currentProjectId = newProject.id; 
+    timer.start = Date.now();
 }
+
 app.on('ready', createWindow);
+
 process.on('exit', () => {
     timer.stop = Date.now();
     getProjectFromId(projects, timer.currentProjectId).addMilliSeconds(timer.stop - timer.start);
@@ -114,6 +126,6 @@ app.on('activate', () => {
 
 ipcMain.on('switchFocus', function (event, projectId) {
     console.log('Received event [switchFocus]: ' + JSON.stringify(projectId));
-    setFocus(getProjectFromId(projects, projectId));
-    event.reply('switchFocusReply', 'ok');
+    setFocus(getProjectFromId(projects, projectId), timer);
+    event.reply('switchFocusReply', {result: 'ok', projects: projects});
 });

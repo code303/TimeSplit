@@ -5,7 +5,8 @@ const App = (function () {
     let currentProjectId = null;
 
     ipcRenderer.on('switchFocusReply', (event, arg) => {
-        console.log('Received event ' + arg);
+        console.log('Received event ' + JSON.stringify(arg));
+        // update the project times from payload args.projects
     });
 
     ipcRenderer.on('projects', (event, payload) => {
@@ -22,6 +23,8 @@ const App = (function () {
 
     const sendMessage = function sendMessage(projectId) {
         ipcRenderer.send('switchFocus', projectId);
+        document.querySelectorAll('button.active')[0].classList.remove('active');
+        document.getElementById(`project_${projectId}`).childNodes[0].classList.add('active');
     };
 
     const renderProjects = function renderProjects(projects, currentProjectId) {
@@ -35,18 +38,17 @@ const App = (function () {
 
     const renderProject = function renderProject(project, isCurrentProject) {
         return `<div id="project_${project.id}">` +
-            `${renderButton(project.id, isCurrentProject)}` +
-            `<span>${project.name}</span>` +
+            `${renderButton(project.id, project.name, isCurrentProject)}` +
             `${renderDescriptionInput(project.description)}` +
             `${renderElapsedTime(project.elapsedTime)}` +
             `</div>`;
     }
 
-    const renderButton = function renderButton(projectId, isCurrentProject) {
+    const renderButton = function renderButton(projectId, projectName, isCurrentProject) {
         if (isCurrentProject) {
-            return `<button class="active" onclick="App.sendMessage(${projectId});">${projectId}</button>`;
+            return `<button class="active" onclick="App.sendMessage(${projectId});">${projectName}</button>`;
         }
-        return `<button onclick="App.sendMessage(${projectId});">${projectId}</button>`;
+        return `<button onclick="App.sendMessage(${projectId});">${projectName}</button>`;
     }
 
     const renderDescriptionInput = function renderDescriptionInput(description) {
