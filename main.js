@@ -112,8 +112,8 @@ app.on('activate', () => {
 
 });
 
-ipcMain.on('switchFocus', function (event, arg) {
-    console.log('Received event [switchFocus]: ' + JSON.stringify(arg));
-    setFocus(getProjectFromId(projects, arg));
+ipcMain.on('switchFocus', function (event, projectId) {
+    console.log('Received event [switchFocus]: ' + JSON.stringify(projectId));
+    setFocus(getProjectFromId(projects, projectId));
     event.reply('switchFocusReply', 'ok');
 });
