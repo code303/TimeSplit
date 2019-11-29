@@ -9,6 +9,11 @@ const App = (function () {
         // update the project times from payload args.projects
     });
 
+    ipcRenderer.on('editDescriptionReply', (event, arg) => {
+        console.log('Received event reply from editDescription' + JSON.stringify(arg));
+        // update the project times from payload args.projects
+    });
+
     ipcRenderer.on('projects', (event, payload) => {
         console.log('Received ' + payload);
         projects = payload.projects;
@@ -27,6 +32,10 @@ const App = (function () {
         document.getElementById(`project_${projectId}`).childNodes[0].classList.add('active');
     };
 
+    const sendProjectDescription = function sendProjectDescription(projectId, description) {
+        ipcRenderer.send('editDescription', projectId, description);
+    }
+
     const renderProjects = function renderProjects(projects, currentProjectId) {
         let html = '';
         for (let i = 0; i < projects.length; i++) {
@@ -39,7 +48,7 @@ const App = (function () {
     const renderProject = function renderProject(project, isCurrentProject) {
         return `<div id="project_${project.id}">` +
             `${renderButton(project.id, project.name, isCurrentProject)}` +
-            `${renderDescriptionInput(project.description)}` +
+            `${renderDescriptionInput(project.id, project.description)}` +
             `${renderElapsedTime(project.elapsedTime)}` +
             `</div>`;
     }
@@ -51,8 +60,8 @@ const App = (function () {
         return `<button onclick="App.sendMessage(${projectId});">${projectName}</button>`;
     }
 
-    const renderDescriptionInput = function renderDescriptionInput(description) {
-        return `<input type="text" name="Description" value="${description}">`;
+    const renderDescriptionInput = function renderDescriptionInput(projectId, description) {
+        return `<input type="text" onchange="App.sendProjectDescription(${projectId}, this.value);" name="Description" value="${description}">`;
     }
 
     const renderElapsedTime = function renderElapsedTime(elapsedTime) {
@@ -61,6 +70,7 @@ const App = (function () {
 
     return {
         sendMessage: sendMessage,
+        sendProjectDescription: sendProjectDescription,
         projects: projects,
         renderProjects: renderProjects
     };

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const timer = require('./timer.js');
 const Project = require('./project.js');
 const fs = require('fs');
@@ -20,7 +20,8 @@ const createWindow = function createWindow() {
     });
     
     win.loadFile('index.html');
-
+    Menu.setApplicationMenu(null);
+    
     win.webContents.openDevTools();
 
     if (!currentProjectId) {
@@ -128,4 +129,10 @@ ipcMain.on('switchFocus', function (event, projectId) {
     console.log('Received event [switchFocus]: ' + JSON.stringify(projectId));
     setFocus(getProjectFromId(projects, projectId), timer);
     event.reply('switchFocusReply', {result: 'ok', projects: projects});
+});
+
+ipcMain.on('editDescription', function (event, projectId, description) {
+    console.log('Received event [editDescription]: ' + JSON.stringify(projectId + description));
+    getProjectFromId(projects, projectId).description = description;
+    event.reply('editDescriptionReply', {result: 'ok'});
 });
