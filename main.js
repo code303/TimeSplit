@@ -67,10 +67,24 @@ const getProjectFromId = function getProjectFromId(projects, id) {
 const saveReport = function saveReport(projects) {
     const dir = path.join(homeDir, 'ts');
     const yyyymmdd = (new Date().toISOString().split('T'))[0];
-    const fileName = 'TimeSplit_' + yyyymmdd + '.csv';
+    const fileName = createNonExistingFileName(dir, yyyymmdd, '.csv');
     const csvString = createCsvString(projects);
     writeFile(dir, fileName, csvString);
 };
+
+const createNonExistingFileName = function findFileName(dir, yyyymmdd, extension) {
+    let fileName = 'TimeSplit_' + yyyymmdd;
+    if (!fs.existsSync(path.join(dir, fileName + extension))) {
+        return fileName + extension;
+    }
+
+    let counter = 1;
+    fileName = fileName + '_';
+    while (fs.existsSync(path.join(dir, fileName + counter + extension))) {
+        counter++;
+    }
+    return fileName + counter + extension;
+}
 
 const createCsvString = function createCsvString(projects) {
     let csv = '';
