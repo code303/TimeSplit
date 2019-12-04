@@ -8,10 +8,35 @@ button {
     text-align: center;
     text-decoration: none;
     display: inline-block;
+    grid-column: 1 / span 1;
+    outline: none;
 }
 
 button.active {
     background-color: #4CAF50; /* Green */
     border: none;
     color: white;
+}
+
+.project {
+    display: grid;
+    grid-template-columns: 90px 30px auto;
+    gap: 15px;
+}
+
+.elapsedTime {
+    grid-column: 2 / span 1;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: small;
+    padding-top: 6px;
+    color: #555555;
+}
+
+.descriptionInput {
+    grid-column: 3 / span 1;
+    border-color: #d4d4d4;
+    border-style: solid;
+    border-width: 1px;
+    margin-top: 1px;
+    padding: 3px
 }

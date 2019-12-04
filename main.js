@@ -12,8 +12,8 @@ let currentProjectId = null;
 
 const createWindow = function createWindow() {
     win = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 400,
+        height: 235,
         webPreferences: {
             nodeIntegration: true
         }

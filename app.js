@@ -23,7 +23,7 @@ const App = (function () {
     });
 
     const startTimer = function startTimer(projects, currentProjectId) {
-        setInterval(() => {document.querySelector('div#project_' + currentProjectId +' span.elapsedTime').innerHTML = 'fooo'}, 1000);
+        setInterval(() => {document.querySelector('div#project_' + currentProjectId +' span.elapsedTime').innerHTML = '01:56'}, 1000);
     }
 
     const sendMessage = function sendMessage(projectId) {
@@ -46,10 +46,10 @@ const App = (function () {
     };
 
     const renderProject = function renderProject(project, isCurrentProject) {
-        return `<div id="project_${project.id}">` +
+        return `<div class="project" id="project_${project.id}">` +
             `${renderButton(project.id, project.name, isCurrentProject)}` +
-            `${renderDescriptionInput(project.id, project.description)}` +
             `${renderElapsedTime(project.elapsedTime)}` +
+            `${renderDescriptionInput(project.id, project.description)}` +
             `</div>`;
     }
 
@@ -59,13 +59,13 @@ const App = (function () {
         }
         return `<button onclick="App.sendMessage(${projectId});">${projectName}</button>`;
     }
-
-    const renderDescriptionInput = function renderDescriptionInput(projectId, description) {
-        return `<input type="text" onchange="App.sendProjectDescription(${projectId}, this.value);" name="Description" value="${description}">`;
-    }
-
+    
     const renderElapsedTime = function renderElapsedTime(elapsedTime) {
         return `<span class="elapsedTime">${elapsedTime}</span>`;
+    }
+
+    const renderDescriptionInput = function renderDescriptionInput(projectId, description) {
+        return `<input class="descriptionInput" type="text" onchange="App.sendProjectDescription(${projectId}, this.value);" name="Description" value="${description}">`;
     }
 
     return {
