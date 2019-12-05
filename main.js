@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const timer = require('./timer.js');
 const Project = require('./project.js');
+const tools = require('./tools.js');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -55,15 +56,6 @@ const createDefaultProjects = function createDefaultProjects() {
     ]
 }
 
-const getProjectFromId = function getProjectFromId(projects, id) {
-    for (let i = 0; i < projects.length; i++) {
-        if (projects[i].id === id) {
-            return projects[i];
-        }
-    }
-    throw {error: 'Could not find project for id ' + id};
-}
-
 const saveReport = function saveReport(projects) {
     const dir = path.join(homeDir, 'ts');
     const yyyymmdd = (new Date().toISOString().split('T'))[0];
@@ -108,7 +100,7 @@ const writeFile = function writeFile(directory, fileName, content) {
 const setFocus = function setFocus(newProject, timer) {
     // save elapsed time to current project
     timer.stop = Date.now();
-    const currentProject = getProjectFromId(projects, timer.currentProjectId);
+    const currentProject = tools.getProjectFromId(projects, timer.currentProjectId);
     currentProject.addMilliSeconds(timer.stop - timer.start);
     
     // reset timer
@@ -122,7 +114,7 @@ app.on('ready', createWindow);
 
 process.on('exit', () => {
     timer.stop = Date.now();
-    getProjectFromId(projects, timer.currentProjectId).addMilliSeconds(timer.stop - timer.start);
+    tools.getProjectFromId(projects, timer.currentProjectId).addMilliSeconds(timer.stop - timer.start);
     saveReport(projects);
 });
 
@@ -141,12 +133,12 @@ app.on('activate', () => {
 
 ipcMain.on('switchFocus', function (event, projectId) {
     console.log('Received event [switchFocus]: ' + JSON.stringify(projectId));
-    setFocus(getProjectFromId(projects, projectId), timer);
+    setFocus(tools.getProjectFromId(projects, projectId), timer);
     event.reply('switchFocusReply', {result: 'ok', projects: projects});
 });
 
 ipcMain.on('editDescription', function (event, projectId, description) {
     console.log('Received event [editDescription]: ' + JSON.stringify(projectId + description));
-    getProjectFromId(projects, projectId).description = description;
+    tools.getProjectFromId(projects, projectId).description = description;
     event.reply('editDescriptionReply', {result: 'ok'});
 });

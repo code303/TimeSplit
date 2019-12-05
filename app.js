@@ -1,12 +1,15 @@
 const App = (function () {
 
     const { ipcRenderer } = require('electron');
+    const tools = require('./tools.js');
     let projects = null;
     let currentProjectId = null;
+    let timer = {start: 0, id: ''};
 
     ipcRenderer.on('switchFocusReply', (event, arg) => {
         console.log('Received event ' + JSON.stringify(arg));
         // update the project times from payload args.projects
+        projects = arg.projects;
     });
 
     ipcRenderer.on('editDescriptionReply', (event, arg) => {
@@ -23,13 +26,26 @@ const App = (function () {
     });
 
     const startTimer = function startTimer(projects, currentProjectId) {
-        setInterval(() => {document.querySelector('div#project_' + currentProjectId +' span.elapsedTime').innerHTML = '01:56'}, 1000);
+        timer.start = Date.now();
+        timer.id = setInterval(() => {
+            updateElapedTime(projects, currentProjectId, Date.now() - timer.start);
+        }, 1000);
+    }
+    
+    const updateElapedTime = function updateElapedTime(projects, currentProjectId, elapsedTime) {
+        const project = tools.getProjectFromId(projects, currentProjectId);
+        const displayTime = tools.formatHHMM((parseInt(project.elapsedTime, 10) + parseInt(elapsedTime, 10)));
+        console.log('Display: project: ' + project.elapsedTime + ', elapsedTime: ' + elapsedTime + ', displayTime: ' + displayTime);
+        document.querySelector('div#project_' + currentProjectId +' span.elapsedTime').innerHTML = displayTime;
     }
 
-    const sendMessage = function sendMessage(projectId) {
+    const handleFocusSwitch = function handleFocusSwitch(projectId) {
         ipcRenderer.send('switchFocus', projectId);
         document.querySelectorAll('button.active')[0].classList.remove('active');
         document.getElementById(`project_${projectId}`).childNodes[0].classList.add('active');
+        currentProjectId = projectId;
+        clearInterval(timer.id);
+        startTimer(projects, currentProjectId);
     };
 
     const sendProjectDescription = function sendProjectDescription(projectId, description) {
@@ -55,9 +71,9 @@ const App = (function () {
 
     const renderButton = function renderButton(projectId, projectName, isCurrentProject) {
         if (isCurrentProject) {
-            return `<button class="active" onclick="App.sendMessage(${projectId});">${projectName}</button>`;
+            return `<button class="active" onclick="App.handleFocusSwitch(${projectId});">${projectName}</button>`;
         }
-        return `<button onclick="App.sendMessage(${projectId});">${projectName}</button>`;
+        return `<button onclick="App.handleFocusSwitch(${projectId});">${projectName}</button>`;
     }
     
     const renderElapsedTime = function renderElapsedTime(elapsedTime) {
@@ -69,7 +85,7 @@ const App = (function () {
     }
 
     return {
-        sendMessage: sendMessage,
+        handleFocusSwitch: handleFocusSwitch,
         sendProjectDescription: sendProjectDescription,
         projects: projects,
         renderProjects: renderProjects
