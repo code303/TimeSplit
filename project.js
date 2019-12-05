@@ -1,3 +1,4 @@
+const tools = require('./tools.js');
 module.exports = function Project(identifier, projectName, desc) {
     this.id = identifier;
     this.name = projectName;
@@ -9,6 +10,7 @@ module.exports = function Project(identifier, projectName, desc) {
     };
 
     this.toCsvRecord = function toCsvRecord() {
-        return `${this.elapsedTime}; ${this.name}; ${this.description}`;
+        const formattedTime = tools.formatHHMM(this.elapsedTime);
+        return `${formattedTime}; ${this.name}; ${this.description}`;
     };
 };
