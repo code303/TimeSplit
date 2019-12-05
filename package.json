@@ -1,6 +1,6 @@
 {
   "name": "timesplit",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Time tracking tool",
   "main": "main.js",
   "scripts": {

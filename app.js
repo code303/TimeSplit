@@ -7,14 +7,11 @@ const App = (function () {
     let timer = {start: 0, id: ''};
 
     ipcRenderer.on('switchFocusReply', (event, arg) => {
-        console.log('Received event ' + JSON.stringify(arg));
-        // update the project times from payload args.projects
         projects = arg.projects;
     });
 
     ipcRenderer.on('editDescriptionReply', (event, arg) => {
-        console.log('Received event reply from editDescription' + JSON.stringify(arg));
-        // update the project times from payload args.projects
+        projects = arg.projects;
     });
 
     ipcRenderer.on('projects', (event, payload) => {
@@ -29,7 +26,7 @@ const App = (function () {
         timer.start = Date.now();
         timer.id = setInterval(() => {
             updateElapedTime(projects, currentProjectId, Date.now() - timer.start);
-        }, 1000);
+        }, 60000);
     }
     
     const updateElapedTime = function updateElapedTime(projects, currentProjectId, elapsedTime) {

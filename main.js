@@ -23,7 +23,7 @@ const createWindow = function createWindow() {
     win.loadFile('index.html');
     Menu.setApplicationMenu(null);
     
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
     if (!currentProjectId) {
         projects = createDefaultProjects();
@@ -90,7 +90,6 @@ const createCsvString = function createCsvString(projects) {
 }
 
 const writeFile = function writeFile(directory, fileName, content) {
-    // console.log('Writing file to ' + path.join(directory, fileName));
     if (!fs.existsSync(directory)) {
         fs.mkdirSync(directory);
     }
@@ -132,13 +131,11 @@ app.on('activate', () => {
 });
 
 ipcMain.on('switchFocus', function (event, projectId) {
-    console.log('Received event [switchFocus]: ' + JSON.stringify(projectId));
     setFocus(tools.getProjectFromId(projects, projectId), timer);
     event.reply('switchFocusReply', {result: 'ok', projects: projects});
 });
 
 ipcMain.on('editDescription', function (event, projectId, description) {
-    console.log('Received event [editDescription]: ' + JSON.stringify(projectId + description));
     tools.getProjectFromId(projects, projectId).description = description;
-    event.reply('editDescriptionReply', {result: 'ok'});
+    event.reply('editDescriptionReply', {result: 'ok', projects: projects});
 });
