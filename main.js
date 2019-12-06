@@ -51,7 +51,7 @@ const createDefaultProjects = function createDefaultProjects() {
         new Project(2, 'Test', ''),
         new Project(3, 'Development', ''),
         new Project(4, 'Bugfixing', ''),
-        new Project(5, 'Doc', ''),
+        new Project(5, 'Scrum', 'Daily'),
         new Project(6, 'Research', '')
     ]
 }

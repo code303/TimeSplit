@@ -7,3 +7,11 @@ Now based on electron.js
 #### Screenshot ####
 
 ![Screenshot](./screenshot.png "Screenshot")
+
+#### Ideas ####
+
+ - show overall time except break
+ - add adjustment input field
+ - show recent report (yesterday)
+ - add buttons to browser reports
+ - enable reports to edit
