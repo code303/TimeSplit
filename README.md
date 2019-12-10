@@ -11,6 +11,7 @@ Now based on electron.js
 #### Ideas ####
 
  - add adjustment input field
+ - add category (feature work, support, misc, bugfix)
  - show recent report (yesterday)
  - add buttons to browser reports
  - enable reports to edit
