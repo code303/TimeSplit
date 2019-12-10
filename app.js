@@ -34,6 +34,18 @@ const App = (function () {
         const displayTime = tools.formatHHMM((parseInt(project.elapsedTime, 10) + parseInt(elapsedTime, 10)));
         console.log('Display: project: ' + project.elapsedTime + ', elapsedTime: ' + elapsedTime + ', displayTime: ' + displayTime);
         document.querySelector('div#project_' + currentProjectId +' span.elapsedTime').innerHTML = displayTime;
+        document.querySelector('span#summaryTime').innerHTML = tools.formatHHMM(sumUpTime(projects, elapsedTime));
+    }
+
+    const sumUpTime = function sumUpTime(projects, elapsedTime) {
+        let i = 0;
+        let accumulatedTime = elapsedTime;
+        for (i = 0; i < projects.length; i++) {
+            if (projects[i].name != 'Pause') {
+                accumulatedTime = accumulatedTime + projects[i].elapsedTime;
+            }
+        }
+        return accumulatedTime;
     }
 
     const handleFocusSwitch = function handleFocusSwitch(projectId) {
@@ -56,7 +68,29 @@ const App = (function () {
             html += renderProject(projects[i], isCurrentProject);
         }
         window.document.getElementById('projects').innerHTML = html;
+        window.document.getElementById('projects').appendChild(createSummary(0));
     };
+
+    const createSummary = function createSummary(time) {
+        const div = window.document.createElement('div');
+        div.classList.add('project');
+        const span1 = document.createElement('span');
+        span1.setAttribute('style', 'grid-column = "1 / span 1"');
+        
+        const span2 = document.createElement('span');
+        span2.classList.add('elapsedTime');
+        span2.innerText = tools.formatHHMM(time);
+        span2.setAttribute('style', 'grid-column = "2 / span 1"');
+        span2.setAttribute('id', 'summaryTime');
+        
+        const span3 = document.createElement('span');
+        span3.setAttribute('style', 'grid-column = "3 / span 1"');
+        
+        div.appendChild(span1);
+        div.appendChild(span2);
+        div.appendChild(span3);
+        return div;
+    }
 
     const renderProject = function renderProject(project, isCurrentProject) {
         return `<div class="project" id="project_${project.id}">` +
