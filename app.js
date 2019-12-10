@@ -34,12 +34,14 @@ const App = (function () {
         const displayTime = tools.formatHHMM((parseInt(project.elapsedTime, 10) + parseInt(elapsedTime, 10)));
         console.log('Display: project: ' + project.elapsedTime + ', elapsedTime: ' + elapsedTime + ', displayTime: ' + displayTime);
         document.querySelector('div#project_' + currentProjectId +' span.elapsedTime').innerHTML = displayTime;
-        document.querySelector('span#summaryTime').innerHTML = tools.formatHHMM(sumUpTime(projects, elapsedTime));
+        document.querySelector('span#summaryTime').innerHTML = tools.formatHHMM(sumUpTime(projects, currentProjectId, elapsedTime));
     }
 
-    const sumUpTime = function sumUpTime(projects, elapsedTime) {
+    const sumUpTime = function sumUpTime(projects, currentProjectId, elapsedTime) {
         let i = 0;
-        let accumulatedTime = elapsedTime;
+        const currentProject = tools.getProjectFromId(currentProjectId).name;
+        let accumulatedTime = (currentProject === 'Pause') ? 0 : elapsedTime;
+
         for (i = 0; i < projects.length; i++) {
             if (projects[i].name != 'Pause') {
                 accumulatedTime = accumulatedTime + projects[i].elapsedTime;
