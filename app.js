@@ -25,21 +25,21 @@ const App = (function () {
     const startTimer = function startTimer(projects, currentProjectId) {
         timer.start = Date.now();
         timer.id = setInterval(() => {
-            updateElapedTime(projects, currentProjectId, Date.now() - timer.start);
+            updateElapedTime(currentProjectId, Date.now() - timer.start);
         }, 60000);
     }
     
-    const updateElapedTime = function updateElapedTime(projects, currentProjectId, elapsedTime) {
+    const updateElapedTime = function updateElapedTime(currentProjectId, elapsedTime) {
         const project = tools.getProjectFromId(projects, currentProjectId);
         const displayTime = tools.formatHHMM((parseInt(project.elapsedTime, 10) + parseInt(elapsedTime, 10)));
         console.log('Display: project: ' + project.elapsedTime + ', elapsedTime: ' + elapsedTime + ', displayTime: ' + displayTime);
         document.querySelector('div#project_' + currentProjectId +' span.elapsedTime').innerHTML = displayTime;
-        document.querySelector('span#summaryTime').innerHTML = tools.formatHHMM(sumUpTime(projects, currentProjectId, elapsedTime));
+        document.querySelector('span#summaryTime').innerHTML = tools.formatHHMM(sumUpTime(currentProjectId, elapsedTime));
     }
 
-    const sumUpTime = function sumUpTime(projects, currentProjectId, elapsedTime) {
+    const sumUpTime = function sumUpTime(currentProjectId, elapsedTime) {
         let i = 0;
-        const currentProject = tools.getProjectFromId(currentProjectId).name;
+        const currentProject = tools.getProjectFromId(projects, currentProjectId).name;
         let accumulatedTime = (currentProject === 'Pause') ? 0 : elapsedTime;
 
         for (i = 0; i < projects.length; i++) {
