@@ -59,6 +59,17 @@ const App = (function () {
         startTimer(projects, currentProjectId);
     };
 
+    const handleAdjustTime = function handleAdjustTime(projectId, milliseconds) {
+        alert('Adjusting time for project ' + projectId + ' time: ' + milliseconds );
+        if (projectId && milliseconds && typeof(milliseconds) === 'number') {
+            if (milliseconds > 0) {
+                //ipcRenderer.send('addTime', projectId, time);
+            } else {
+                //ipcRenderer.send('removeTime', projectId, time);
+            }
+        }
+    }
+
     const sendProjectDescription = function sendProjectDescription(projectId, description) {
         ipcRenderer.send('editDescription', projectId, description);
     }
@@ -99,14 +110,15 @@ const App = (function () {
             `${renderButton(project.id, project.name, isCurrentProject)}` +
             `${renderElapsedTime(project.elapsedTime)}` +
             `${renderDescriptionInput(project.id, project.description)}` +
+            `${renderTimeAdjustmentButtons(project.id)}` +
             `</div>`;
     }
 
     const renderButton = function renderButton(projectId, projectName, isCurrentProject) {
         if (isCurrentProject) {
-            return `<button class="active" onclick="App.handleFocusSwitch(${projectId});">${projectName}</button>`;
+            return `<button class="projectButton active" onclick="App.handleFocusSwitch(${projectId});">${projectName}</button>`;
         }
-        return `<button onclick="App.handleFocusSwitch(${projectId});">${projectName}</button>`;
+        return `<button class="projectButton" onclick="App.handleFocusSwitch(${projectId});">${projectName}</button>`;
     }
     
     const renderElapsedTime = function renderElapsedTime(elapsedTime) {
@@ -117,8 +129,19 @@ const App = (function () {
         return `<input class="descriptionInput" type="text" onchange="App.sendProjectDescription(${projectId}, this.value);" name="Description" value="${description}">`;
     }
 
+    const renderTimeAdjustmentButtons = function renderTimeAdjustmentButtons(projectId) {
+        let html =  '<div class="adjustmentButtons">';
+        html = html + `<button onclick="App.handleAdjustTime(${projectId}, -3600000);">&lt;&lt;</button>`;
+        html = html + `<button onclick="App.handleAdjustTime(${projectId}, -600000);">&lt;</button>`;
+        html = html + `<button onclick="App.handleAdjustTime(${projectId}, 600000);">&gt;</button>`;
+        html = html + `<button onclick="App.handleAdjustTime(${projectId}, 3600000);">&gt;&gt;</button>`;
+        html = html + '</div>'
+        return html;
+    }
+
     return {
         handleFocusSwitch: handleFocusSwitch,
+        handleAdjustTime: handleAdjustTime,
         sendProjectDescription: sendProjectDescription,
         projects: projects,
         renderProjects: renderProjects
