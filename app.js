@@ -14,6 +14,17 @@ const App = (function () {
         projects = arg.projects;
     });
 
+    ipcRenderer.on('addTimeReply', (event, arg) => {
+        projects = arg.projects;
+        projectId = arg.projectId;
+        updateElapedTime(currentProjectId, Date.now() - timer.start);
+    });
+
+    ipcRenderer.on('removeTimeReply', (event, arg) => {
+        projects = arg.projects;
+        updateElapedTime(currentProjectId, Date.now() - timer.start);
+    });
+
     ipcRenderer.on('projects', (event, payload) => {
         console.log('Received ' + payload);
         projects = payload.projects;
@@ -27,14 +38,25 @@ const App = (function () {
         timer.id = setInterval(() => {
             updateElapedTime(currentProjectId, Date.now() - timer.start);
         }, 60000);
-    }
+    };
     
     const updateElapedTime = function updateElapedTime(currentProjectId, elapsedTime) {
-        const project = tools.getProjectFromId(projects, currentProjectId);
-        const displayTime = tools.formatHHMM((parseInt(project.elapsedTime, 10) + parseInt(elapsedTime, 10)));
-        console.log('Display: project: ' + project.elapsedTime + ', elapsedTime: ' + elapsedTime + ', displayTime: ' + displayTime);
-        document.querySelector('div#project_' + currentProjectId +' span.elapsedTime').innerHTML = displayTime;
+        let i = 0;
+        for (i = 0; i < projects.length; i++) {
+            updateElapedTimeForProject(projects[i].id, currentProjectId, elapsedTime);
+        }
         document.querySelector('span#summaryTime').innerHTML = tools.formatHHMM(sumUpTime(currentProjectId, elapsedTime));
+    };
+
+    const updateElapedTimeForProject = function updateElapedTimeForProject(id, currentProjectId, elapsedTime) {
+        const project = tools.getProjectFromId(projects, id);
+        let  displayTime;
+        if (id === currentProjectId) {
+            displayTime = tools.formatHHMM(parseInt(project.elapsedTime, 10) + parseInt(elapsedTime, 10));
+        } else {
+            displayTime = tools.formatHHMM(parseInt(project.elapsedTime, 10));
+        }
+        document.querySelector('div#project_' + id +' span.elapsedTime').innerHTML = displayTime;
     }
 
     const sumUpTime = function sumUpTime(currentProjectId, elapsedTime) {
@@ -48,7 +70,7 @@ const App = (function () {
             }
         }
         return accumulatedTime;
-    }
+    };
 
     const handleFocusSwitch = function handleFocusSwitch(projectId) {
         ipcRenderer.send('switchFocus', projectId);
@@ -60,19 +82,18 @@ const App = (function () {
     };
 
     const handleAdjustTime = function handleAdjustTime(projectId, milliseconds) {
-        alert('Adjusting time for project ' + projectId + ' time: ' + milliseconds );
         if (projectId && milliseconds && typeof(milliseconds) === 'number') {
             if (milliseconds > 0) {
-                //ipcRenderer.send('addTime', projectId, time);
+                ipcRenderer.send('addTime', projectId, milliseconds);
             } else {
-                //ipcRenderer.send('removeTime', projectId, time);
+                ipcRenderer.send('removeTime', projectId, milliseconds);
             }
         }
-    }
+    };
 
     const sendProjectDescription = function sendProjectDescription(projectId, description) {
         ipcRenderer.send('editDescription', projectId, description);
-    }
+    };
 
     const renderProjects = function renderProjects(projects, currentProjectId) {
         let html = '';
@@ -103,7 +124,7 @@ const App = (function () {
         div.appendChild(span2);
         div.appendChild(span3);
         return div;
-    }
+    };
 
     const renderProject = function renderProject(project, isCurrentProject) {
         return `<div class="project" id="project_${project.id}">` +
@@ -112,22 +133,22 @@ const App = (function () {
             `${renderDescriptionInput(project.id, project.description)}` +
             `${renderTimeAdjustmentButtons(project.id)}` +
             `</div>`;
-    }
+    };
 
     const renderButton = function renderButton(projectId, projectName, isCurrentProject) {
         if (isCurrentProject) {
             return `<button class="projectButton active" onclick="App.handleFocusSwitch(${projectId});">${projectName}</button>`;
         }
         return `<button class="projectButton" onclick="App.handleFocusSwitch(${projectId});">${projectName}</button>`;
-    }
+    };
     
     const renderElapsedTime = function renderElapsedTime(elapsedTime) {
         return `<span class="elapsedTime">${elapsedTime}</span>`;
-    }
+    };
 
     const renderDescriptionInput = function renderDescriptionInput(projectId, description) {
         return `<input class="descriptionInput" type="text" onchange="App.sendProjectDescription(${projectId}, this.value);" name="Description" value="${description}">`;
-    }
+    };
 
     const renderTimeAdjustmentButtons = function renderTimeAdjustmentButtons(projectId) {
         let html =  '<div class="adjustmentButtons">';
@@ -137,7 +158,7 @@ const App = (function () {
         html = html + `<button onclick="App.handleAdjustTime(${projectId}, 3600000);">&gt;&gt;</button>`;
         html = html + '</div>'
         return html;
-    }
+    };
 
     return {
         handleFocusSwitch: handleFocusSwitch,

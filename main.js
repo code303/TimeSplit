@@ -139,3 +139,13 @@ ipcMain.on('editDescription', function (event, projectId, description) {
     tools.getProjectFromId(projects, projectId).description = description;
     event.reply('editDescriptionReply', {result: 'ok', projects: projects});
 });
+
+ipcMain.on('addTime', function (event, projectId, time) {
+    tools.getProjectFromId(projects, projectId).addMilliSeconds(time);
+    event.reply('addTimeReply', {result: 'ok', projects: projects, projectId: projectId});
+});
+
+ipcMain.on('removeTime', function (event, projectId, time) {
+    tools.getProjectFromId(projects, projectId).subtractMilliseconds(time);
+    event.reply('removeTimeReply', {result: 'ok', projects: projects, projectId: projectId});
+});

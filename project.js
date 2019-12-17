@@ -6,7 +6,15 @@ module.exports = function Project(identifier, projectName, desc) {
     this.elapsedTime = 0;
 
     this.addMilliSeconds = function addMilliSeconds(millis) {
-        this.elapsedTime += millis;
+        this.elapsedTime += Math.abs(millis);
+    };
+
+    this.subtractMilliseconds = function subtractMilliseconds(millis) {
+        if (this.elapsedTime < Math.abs(millis)) {
+            this.elapsedTime = 0;
+        } else {
+            this.elapsedTime -= Math.abs(millis);
+        }
     };
 
     this.toCsvRecord = function toCsvRecord() {
