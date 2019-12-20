@@ -2,6 +2,7 @@ const App = (function () {
 
     const { ipcRenderer } = require('electron');
     const tools = require('./tools.js');
+    const report = require('./report.js');
     let projects = null;
     let currentProjectId = null;
     let timer = {start: 0, id: ''};
@@ -31,6 +32,14 @@ const App = (function () {
         currentProjectId = payload.currentProjectId;
         renderProjects(projects, currentProjectId);
         startTimer(projects, currentProjectId);
+    });
+
+    ipcRenderer.on('showReportReply', (event, arg) => {
+        // hide all projects - show report
+        document.getElementById('projects').style.display = 'none';
+        console.log('Report received: ' + arg.report);
+        document.getElementById('reports').display = 'block';
+        report.renderReport(arg.fileName, arg.report);
     });
 
     const startTimer = function startTimer(projects, currentProjectId) {
@@ -108,8 +117,10 @@ const App = (function () {
     const createSummary = function createSummary(time) {
         const div = window.document.createElement('div');
         div.classList.add('project');
-        const span1 = document.createElement('span');
-        span1.setAttribute('style', 'grid-column = "1 / span 1"');
+        const reportButton = document.createElement('button');
+        reportButton.classList.add('reportButton');
+        reportButton.innerText = 'Report';
+        reportButton.addEventListener('click', () => {ipcRenderer.send('showReport');});
         
         const span2 = document.createElement('span');
         span2.classList.add('elapsedTime');
@@ -120,7 +131,7 @@ const App = (function () {
         const span3 = document.createElement('span');
         span3.setAttribute('style', 'grid-column = "3 / span 1"');
         
-        div.appendChild(span1);
+        div.appendChild(reportButton);
         div.appendChild(span2);
         div.appendChild(span3);
         return div;

@@ -96,6 +96,22 @@ const writeFile = function writeFile(directory, fileName, content) {
     fs.writeFileSync(path.join(directory, fileName), content);
 }
 
+const loadReport = function loadReport() {
+    const dir =  path.join(homeDir, 'ts');
+    const files = fs.readdirSync(dir);
+    files.sort(function(a, b) {
+        //return fs.statSync(dir + a).mtime.getTime() - fs.statSync(dir + b).mtime.getTime();
+        return true;
+    });
+    const report = loadFileContent(dir, files[files.length -1]);
+    return {fileName: files[files.length - 1], report: report};
+}
+
+const loadFileContent = function loadFileContent(directory, fileName) {
+    console.log('Loading report: ' + path.join(directory, fileName));
+    return fs.readFileSync(path.join(directory, fileName), 'utf8');
+};
+
 const setFocus = function setFocus(newProject, timer) {
     // save elapsed time to current project
     timer.stop = Date.now();
@@ -148,4 +164,9 @@ ipcMain.on('addTime', function (event, projectId, time) {
 ipcMain.on('removeTime', function (event, projectId, time) {
     tools.getProjectFromId(projects, projectId).subtractMilliseconds(time);
     event.reply('removeTimeReply', {result: 'ok', projects: projects, projectId: projectId});
+});
+
+ipcMain.on('showReport', function (event) {
+    const data = loadReport();
+    event.reply('showReportReply', {result: 'ok', report: data.report, fileName: data.fileName});
 });

@@ -1,6 +1,10 @@
-button.projectButton {
+button.projectButton, button.reportButton {
     width: 90px;
     grid-column: 1 / span 1;
+}
+
+.reportButton {
+    background-color: #f7f7f7;
 }
 
 button {
@@ -51,4 +55,9 @@ button.active {
     border-width: 1px;
     margin-top: 1px;
     padding: 3px
+}
+
+div#reports {
+    background-color: #f4f4f4;
+    padding: 5px;
 }
