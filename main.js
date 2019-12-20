@@ -96,16 +96,21 @@ const writeFile = function writeFile(directory, fileName, content) {
     fs.writeFileSync(path.join(directory, fileName), content);
 }
 
-const loadReport = function loadReport() {
+const loadReport = function loadReport(fileName) {
     const dir =  path.join(homeDir, 'ts');
     const files = fs.readdirSync(dir);
     files.sort(function(a, b) {
         //return fs.statSync(dir + a).mtime.getTime() - fs.statSync(dir + b).mtime.getTime();
         return true;
     });
-    const report = loadFileContent(dir, files[files.length -1]);
-    return {fileName: files[files.length - 1], report: report};
-}
+
+    const reportFileName = (fileName === 'latest') ?
+        files[files.length -1] :
+        fileName;
+    
+    const report = loadFileContent(dir, reportFileName);
+    return {fileName: reportFileName, report: report, fileList: files};
+};
 
 const loadFileContent = function loadFileContent(directory, fileName) {
     console.log('Loading report: ' + path.join(directory, fileName));
@@ -166,7 +171,12 @@ ipcMain.on('removeTime', function (event, projectId, time) {
     event.reply('removeTimeReply', {result: 'ok', projects: projects, projectId: projectId});
 });
 
-ipcMain.on('showReport', function (event) {
-    const data = loadReport();
-    event.reply('showReportReply', {result: 'ok', report: data.report, fileName: data.fileName});
+ipcMain.on('showLatestReport', function (event) {
+    const data = loadReport('latest');
+    event.reply('showReportReply', {result: 'ok', report: data.report, fileName: data.fileName, fileList: data.fileList});
+});
+
+ipcMain.on('showSpecificReport', function (event, fileName) {
+    const data = loadReport(fileName);
+    event.reply('showReportReply', {result: 'ok', report: data.report, fileName: data.fileName, fileList: data.fileList});
 });

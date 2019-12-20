@@ -38,8 +38,9 @@ const App = (function () {
         // hide all projects - show report
         document.getElementById('projects').style.display = 'none';
         console.log('Report received: ' + arg.report);
-        document.getElementById('reports').display = 'block';
-        report.renderReport(arg.fileName, arg.report);
+        const container = document.getElementById('reports');
+        container.display = 'block';
+        report.renderReport(container, arg.fileName, arg.report, arg.fileList);
     });
 
     const startTimer = function startTimer(projects, currentProjectId) {
@@ -120,7 +121,7 @@ const App = (function () {
         const reportButton = document.createElement('button');
         reportButton.classList.add('reportButton');
         reportButton.innerText = 'Report';
-        reportButton.addEventListener('click', () => {ipcRenderer.send('showReport');});
+        reportButton.addEventListener('click', () => {ipcRenderer.send('showLatestReport');});
         
         const span2 = document.createElement('span');
         span2.classList.add('elapsedTime');
