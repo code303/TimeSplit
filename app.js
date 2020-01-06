@@ -2,7 +2,10 @@ const App = (function () {
 
     const { ipcRenderer } = require('electron');
     const tools = require('./tools.js');
+    const cat = tools.constants.categories;
     const report = require('./report.js');
+
+    const categories = [cat.EMPTY, cat.FEATURES, cat.SUPPORT, cat.PROMOTION, cat.TECHDEPT];
     let projects = null;
     let currentProjectId = null;
     let timer = {start: 0, id: ''};
@@ -12,6 +15,10 @@ const App = (function () {
     });
 
     ipcRenderer.on('editDescriptionReply', (event, arg) => {
+        projects = arg.projects;
+    });
+    
+    ipcRenderer.on('setCategoryReply', (event, arg) => {
         projects = arg.projects;
     });
 
@@ -92,7 +99,7 @@ const App = (function () {
     };
 
     const handleAdjustTime = function handleAdjustTime(projectId, milliseconds) {
-        if (projectId && milliseconds && typeof(milliseconds) === 'number') {
+        if (milliseconds && typeof(milliseconds) === 'number') {
             if (milliseconds > 0) {
                 ipcRenderer.send('addTime', projectId, milliseconds);
             } else {
@@ -103,6 +110,10 @@ const App = (function () {
 
     const sendProjectDescription = function sendProjectDescription(projectId, description) {
         ipcRenderer.send('editDescription', projectId, description);
+    };
+
+    const sendProjectCategory = function sendProjectCategory(projectId, category) {
+        ipcRenderer.send('setCategory', projectId, category);
     };
 
     const renderProjects = function renderProjects(projects, currentProjectId) {
@@ -143,6 +154,7 @@ const App = (function () {
             `${renderButton(project.id, project.name, isCurrentProject)}` +
             `${renderElapsedTime(project.elapsedTime)}` +
             `${renderDescriptionInput(project.id, project.description)}` +
+            `${renderCategoryDropdown(project.id, project.category)}` +
             `${renderTimeAdjustmentButtons(project.id)}` +
             `</div>`;
     };
@@ -162,6 +174,27 @@ const App = (function () {
         return `<input class="descriptionInput" type="text" onchange="App.sendProjectDescription(${projectId}, this.value);" name="Description" value="${description}">`;
     };
 
+    const renderCategoryDropdown = function renderCategoryDropdown(projectId, category) {
+        const tempDiv = document.createElement('div');
+        let select = document.createElement('select');
+        select.classList.add('categoryDropdown');
+        select.setAttribute('onchange', `App.sendProjectCategory(${projectId}, this.value);`);
+
+        let i = 0;
+        for (i = 0; i < categories.length; i++) {
+            const option = document.createElement('option');
+            option.value = categories[i];
+            option.text = categories[i];
+            if (category === categories[i]) {
+                option.setAttribute('selected' , '');
+            }
+            select.appendChild(option);
+        }
+        
+        tempDiv.appendChild(select);
+        return tempDiv.innerHTML;
+    };
+
     const renderTimeAdjustmentButtons = function renderTimeAdjustmentButtons(projectId) {
         let html =  '<div class="adjustmentButtons">';
         html = html + `<button onclick="App.handleAdjustTime(${projectId}, -3600000);">&lt;&lt;</button>`;
@@ -176,6 +209,7 @@ const App = (function () {
         handleFocusSwitch: handleFocusSwitch,
         handleAdjustTime: handleAdjustTime,
         sendProjectDescription: sendProjectDescription,
+        sendProjectCategory: sendProjectCategory,
         projects: projects,
         renderProjects: renderProjects
     };

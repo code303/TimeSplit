@@ -2,6 +2,7 @@ const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const timer = require('./timer.js');
 const Project = require('./project.js');
 const tools = require('./tools.js');
+const constants = tools.constants;
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -46,13 +47,13 @@ const createWindow = function createWindow() {
 
 const createDefaultProjects = function createDefaultProjects() {
     return [
-        new Project(0, 'Pause', ''),
-        new Project(1, 'Orga', 'RnD Emails, OpenAir, iTrac'),
-        new Project(2, 'Test', ''),
-        new Project(3, 'Development', ''),
-        new Project(4, 'Bugfixing', ''),
-        new Project(5, 'Scrum', 'Daily'),
-        new Project(6, 'Research', '')
+        new Project(0, 'Pause', '', ''),
+        new Project(1, 'Orga', 'RnD Emails, OpenAir, iTrac', ''),
+        new Project(2, 'Test', '', ''),
+        new Project(3, 'Development', '', ''),
+        new Project(4, 'Bugfixing', '', ''),
+        new Project(5, 'Scrum', 'Daily', constants.categories.PROMOTION),
+        new Project(6, 'Research', '', '')
     ]
 }
 
@@ -159,6 +160,11 @@ ipcMain.on('switchFocus', function (event, projectId) {
 ipcMain.on('editDescription', function (event, projectId, description) {
     tools.getProjectFromId(projects, projectId).description = description;
     event.reply('editDescriptionReply', {result: 'ok', projects: projects});
+});
+
+ipcMain.on('setCategory', function (event, projectId, category) {
+    tools.getProjectFromId(projects, projectId).category = category;
+    event.reply('setCategoryReply', {result: 'ok', projects: projects});
 });
 
 ipcMain.on('addTime', function (event, projectId, time) {

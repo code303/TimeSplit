@@ -1,4 +1,14 @@
 module.exports = {
+    constants: {
+        categories: {
+            EMPTY: '',
+            FEATURES: 'Features',
+            SUPPORT: 'Support',
+            PROMOTION: 'Promotion',
+            TECHDEPT: 'Techdebt'
+        }
+    },
+
     formatHHMM: function formatHHMM(millis) {
         const hours = Math.floor( millis / 3600000);
         const mins = Math.floor((millis / 60000) - hours * 60);

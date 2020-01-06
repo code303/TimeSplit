@@ -31,12 +31,12 @@ button.active {
 }
 
 .adjustmentButtons {
-    grid-column: 4 / span 1;
+    grid-column: 5 / span 1;
 }
 
 .project {
     display: grid;
-    grid-template-columns: 90px 30px auto;
+    grid-template-columns: 90px 30px auto 85px 90px;
     gap: 15px;
 }
 
@@ -55,6 +55,10 @@ button.active {
     border-width: 1px;
     margin-top: 1px;
     padding: 3px
+}
+
+.categoryDropdown {
+    grid-column: 4 / span 1;
 }
 
 div#reports {
