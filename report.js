@@ -1,6 +1,12 @@
 const { ipcRenderer } = require('electron');
 
 const renderReport = function renderReport(container, fileName, report, fileList) {
+    const closeDiv = document.createElement('div');
+    closeDiv.style.textAlign = 'right';
+    const closeSpan = document.createElement('span');
+    closeSpan.innerText = '[ close ]';
+    closeDiv.appendChild(closeSpan);
+    container.appendChild(closeDiv);
     let pre = document.createElement('pre');
     pre.innerText = fileName + '\n\n' + report;
     container.appendChild(pre);
@@ -12,8 +18,10 @@ const renderReport = function renderReport(container, fileName, report, fileList
 
 const createFileList = function createFileList(files) {
     const ul = document.createElement('ul');
-    let i = 0;
-    for (i = 0; i < files.length; i++) {
+    const show = 10; // show max 10 reports
+    let i = (files.length > show) ? files.length - show : 0;
+    
+    for (; i < files.length; i++) {
         const li = document.createElement('li');
         const fileName = files[i];
         li.innerText = fileName;
