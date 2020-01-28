@@ -104,6 +104,7 @@ const App = (function () {
                 ipcRenderer.send('addTime', projectId, milliseconds);
             } else {
                 ipcRenderer.send('removeTime', projectId, milliseconds);
+                startTimer(projects, currentProjectId);
             }
         }
     };

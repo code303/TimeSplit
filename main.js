@@ -14,8 +14,8 @@ let currentProjectId = null;
 
 const createWindow = function createWindow() {
     win = new BrowserWindow({
-        width: 400,
-        height: 235,
+        width: 580,
+        height: 255,
         webPreferences: {
             nodeIntegration: true
         }
@@ -173,6 +173,7 @@ ipcMain.on('addTime', function (event, projectId, time) {
 });
 
 ipcMain.on('removeTime', function (event, projectId, time) {
+    setFocus(tools.getProjectFromId(projects, currentProjectId), timer);
     tools.getProjectFromId(projects, projectId).subtractMilliseconds(time);
     event.reply('removeTimeReply', {result: 'ok', projects: projects, projectId: projectId});
 });
