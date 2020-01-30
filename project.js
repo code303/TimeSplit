@@ -22,4 +22,13 @@ module.exports = function Project(identifier, projectName, desc, category) {
         const formattedTime = tools.formatHHMM(this.elapsedTime);
         return `${formattedTime}; ${this.name}; ${this.category}; ${this.description}`;
     };
+
+    this.toJson = function toJson() {
+        return {
+            projectName: this.name,
+            description: this.description,
+            elapsedTime: this.elapsedTime,
+            category: this.category
+        };
+    };
 };

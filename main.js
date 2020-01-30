@@ -57,12 +57,17 @@ const createDefaultProjects = function createDefaultProjects() {
     ]
 }
 
-const saveReport = function saveReport(projects) {
+const saveReport = function saveReport(projects, date) {
     const dir = path.join(homeDir, 'ts');
-    const yyyymmdd = (new Date().toISOString().split('T'))[0];
-    const fileName = createNonExistingFileName(dir, yyyymmdd, '.csv');
+    const yyyymmdd = (new Date(date)).toISOString().split('T')[0];
+    
+    const csvFileName = createNonExistingFileName(dir, yyyymmdd, '.csv');
     const csvString = createCsvString(projects);
-    writeFile(dir, fileName, csvString);
+    writeFile(dir, csvFileName, csvString);
+    
+    const jsonFileName = createNonExistingFileName(dir, yyyymmdd, '.json');
+    const jsonString = createJsonString(projects, yyyymmdd);
+    writeFile(dir, jsonFileName, jsonString);
 };
 
 const createNonExistingFileName = function findFileName(dir, yyyymmdd, extension) {
@@ -88,6 +93,17 @@ const createCsvString = function createCsvString(projects) {
         }
     }
     return csv;
+}
+
+const createJsonString = function createJsonString(projects, dateString) {
+    const json = {date: dateString, "projects": []};
+    
+    for (let i = 0; i < projects.length; i++) {
+        if (projects[i].elapsedTime > 0) {
+            json.projects.push(projects[i].toJson());
+        }
+    }
+    return JSON.stringify(json, null, 2);
 }
 
 const writeFile = function writeFile(directory, fileName, content) {
@@ -136,7 +152,7 @@ app.on('ready', createWindow);
 process.on('exit', () => {
     timer.stop = Date.now();
     tools.getProjectFromId(projects, timer.currentProjectId).addMilliSeconds(timer.stop - timer.start);
-    saveReport(projects);
+    saveReport(projects, Date.now());
 });
 
 app.on('window-all-closed', () => {
