@@ -61,10 +61,6 @@ const saveReport = function saveReport(projects, date) {
     const dir = path.join(homeDir, 'ts');
     const yyyymmdd = (new Date(date)).toISOString().split('T')[0];
     
-    const csvFileName = createNonExistingFileName(dir, yyyymmdd, '.csv');
-    const csvString = createCsvString(projects);
-    writeFile(dir, csvFileName, csvString);
-    
     const jsonFileName = createNonExistingFileName(dir, yyyymmdd, '.json');
     const jsonString = createJsonString(projects, yyyymmdd);
     writeFile(dir, jsonFileName, jsonString);
@@ -125,11 +121,27 @@ const loadReport = function loadReport(fileName) {
         files[files.length -1] :
         fileName;
     
-    const report = loadFileContent(dir, reportFileName);
+    const fileContent = loadRawFileContent(dir, reportFileName);
+    let report = createReport(fileContent);
     return {fileName: reportFileName, report: report, fileList: files};
 };
 
-const loadFileContent = function loadFileContent(directory, fileName) {
+const createReport = function createReport(fileContent) {
+    const json = JSON.parse(fileContent);
+    const projects = json.projects;
+    let report = json.date + '\n';
+    let worktime = 0;
+    projects.forEach(project => {
+        report += '\n' + tools.formatHHMM(project.elapsedTime) + ' ' + project.projectName + ' ' + project.description;
+        if (project.projectName != 'Pause') {
+            worktime += project.elapsedTime;
+        }
+    });
+    report += '\n worktime ' + tools.formatHHMM(worktime);
+    return report;
+};
+
+const loadRawFileContent = function loadFileContent(directory, fileName) {
     console.log('Loading report: ' + path.join(directory, fileName));
     return fs.readFileSync(path.join(directory, fileName), 'utf8');
 };
