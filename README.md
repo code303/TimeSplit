@@ -12,3 +12,20 @@ Now based on electron.js
 
  - add buttons to browse reports
  - enable reports to edit
+ 
+#### Ideas v2 ####
+
+##### backend #####
+ - provide HTML and client
+ - API
+   + save reports
+   + show report
+
+##### frontend #####
+ - geo fencing
+ - web worker to start
+ - button to start
+ - form to enter details: 
+   + which project
+   + task
+   + time
