@@ -3,36 +3,41 @@
   const project = {
     name: '',
     description: '',
-    periods: []
+    ranges: []
   };
 
-  const period = {from: 0, to: 0}
+  const range = {from: 0, to: 0}
 
   const stop = (timer) => {
-    timer.elapsed = Date.now() - timer.started;
+    timer.stopped = Date.now();
   };
   
-  const handleStartClicked = (ev) => {
-    const oldTimer = loadTimer();
-    if (oldTimer) {
+  const handleStartClicked = (trigger, project, taskDescription) => {
+    deactivateAllButtons();
+    trigger.classList.add('active');
+    const currentTimer = loadTimer();
+    if (currentTimer) {
       handleStopClicked();      
     }
     const newTimer = initializeTimer();
-    start(newTimer, 'Orga');
+    start(newTimer, project, taskDescription);
     storeTimer(newTimer);
   };
 
   const initializeTimer = () => {
     return {
       started: 0,
+      stopped: 0,
       elapsed: 0,
-      projectName: ''
+      projectName: '',
+      taskDescription: ''
     }
   };
 
-  const start = (timer, projectName) => {
+  const start = (timer, projectName, taskDescription) => {
     timer.started = Date.now();
     timer.projectName = projectName;
+    timer.taskDescription = taskDescription;
     return timer;
   };
   
@@ -48,16 +53,29 @@
     deleteTimer();
   };
   
+  const handleBreakClicked = (ev) => { handleStartClicked(ev.target, "Break", ""); }
+  const handleOrgaClicked = (ev) => { handleStartClicked(ev.target, "Orga", "Emails, iTrac"); }
+  const handleDevelopmentClicked = (ev) => { handleStartClicked(ev.target, "Development", "coding..."); }
+  const handleBugfixClicked = (ev) => { handleStartClicked(ev.target, "Bugfix", "fixing..."); }
+  const handleDocumentationClicked = (ev) => { handleStartClicked(ev.target, "Documentation", "doc..."); }
+  const handleResearchClicked = (ev) => { handleStartClicked(ev.target, "Research", "researching..."); }
+1
+  const deactivateAllButtons = () => {
+    const buttons = document.getElementsByClassName('timerStart');
+    Array.prototype.forEach.call(buttons, function(button) {button.classList.remove('active');});
+  }
+
   const updateProject = (timer, projects) => {
     const project = findProjectByName(projects, timer.projectName);
+    const range = {from: timer.started, to: timer.stopped};
     if (project === undefined) {
       console.log('Could not find project "' + timer.projectName + '".');
       projects.push({
         name: timer.projectName,
         description:'tttdescription',
-        periods: [timer.elapsed]});
+        ranges: range});
     } else {
-      project.periods.push(timer.elapsed);
+      project.ranges.push(range);
     }
   };
 
@@ -83,8 +101,8 @@
   const getAllTimePeriods = (projects) => {
     let elapsedTime = 0;
     projects.forEach(project => {
-      project.periods.forEach(period => {
-        elapsedTime += period;
+      project.ranges.forEach((range) => {
+        elapsedTime += (range.stopped - range.started);
       });
     });
     return elapsedTime;
@@ -111,8 +129,13 @@
   };
 
   const registerEvents = () => {
-    document.getElementById('startbutton').addEventListener('click', handleStartClicked);
     document.getElementById('stopbutton').addEventListener('click', handleStopClicked);
+    document.getElementById('break').addEventListener('click', handleBreakClicked);
+    document.getElementById('orga').addEventListener('click', handleOrgaClicked);
+    document.getElementById('develop').addEventListener('click', handleDevelopmentClicked);
+    document.getElementById('bugfix').addEventListener('click', handleBugfixClicked);
+    document.getElementById('documentation').addEventListener('click', handleDocumentationClicked);
+    document.getElementById('research').addEventListener('click', handleResearchClicked);
   };
 
   const storeTimer = (timer) => {
@@ -128,7 +151,8 @@
         return {
           started: stored.started,
           elapsed: stored.elapsed,
-          projectName: stored.projectName
+          projectName: stored.projectName,
+          taskDescription: stored.taskDescription
         };
       }
     }
