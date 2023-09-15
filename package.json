@@ -1,0 +1,25 @@
+{
+  "name": "timesplitter",
+  "version": "0.0.1",
+  "description": "Time tracker.",
+  "main": "index.js",
+  "scripts": {
+    "clean": "npx rimraf --glob build/* dist/*",
+    "prebuild": "npx rimraf --glob build/* dist/*",
+    "build": "tsc",
+    "postbuild": "copyfiles -u 1 \"./src/**/*.{css,html}\" \"./build/**/*\" \"./dist/\"",
+    "copy": "copyfiles -u 1 \"./src/**/*.{css,html}\" \"./build/**/*\" \"./dist/\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "timesplitter"
+  ],
+  "author": "code303",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "copyfiles": "^2.4.1"
+  }
+}
