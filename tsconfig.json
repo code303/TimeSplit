@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "preserveConstEnums": true,
-    "outFile": "build/script.js"
+    "outFile": "build/script.js",
+    "target": "es2017",
   },
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts"]
