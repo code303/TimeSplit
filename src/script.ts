@@ -14,26 +14,25 @@ type Project = {
 const handleStartClicked = (trigger: any, projectName: string, taskDescription: string): void => {
     deactivateAllButtons();
     trigger.classList.add('active');
-    TIMER.load();
-    if (TIMER.started > 0) {
+    const currentTask: Task = TIMER.load();
+    if (currentTask.started > 0) {
       handleStopClicked({});      
     }
-    TIMER.initialize();
-    TIMER.start(projectName, taskDescription);
-    TIMER.store();
+    const newTask = TIMER.initialize();
+    TIMER.start(newTask, projectName, taskDescription);
+    TIMER.store(newTask);
   };
 
 function handleStopClicked(ev: object): void {
-  TIMER.load();
-  if (TIMER.started === 0) {
+  const task = TIMER.load();
+  if (task.started === 0) {
     return;
   }
   const projects = loadProjects();
-  TIMER.stop();
-  updateProject(projects);
+  TIMER.stop(task);
+  updateProject(task, projects);
   storeProjects(projects);
   TIMER.remove();
-  TIMER.initialize();
   deactivateAllButtons();
 };
   
@@ -49,13 +48,13 @@ function handleStopClicked(ev: object): void {
   }
 
 
-  const updateProject = (projects: Project[]): void => {
-    const project: Project = findProjectByName(projects, TIMER.projectName);
-    const range: TimeRange = {from: TIMER.started, to: TIMER.stopped};
+  const updateProject = (task: Task, projects: Project[]): void => {
+    const project: Project = findProjectByName(projects, task.projectName);
+    const range: TimeRange = {from: task.started, to: task.stopped};
     if (project.name === '') {
-      console.log('Could not find project "' + TIMER.projectName + '".');
-      project.name = TIMER.projectName;
-      project.description = TIMER.taskDescription;
+      console.log('Could not find project "' + task.projectName + '".');
+      project.name = task.projectName;
+      project.description = task.description;
       project.ranges.push(range);
 
       projects.push(project);
@@ -74,11 +73,11 @@ function handleStopClicked(ev: object): void {
   };
 
   const updateAccumulatedDisplay = (): void => {
-    TIMER.load();
+    const task = TIMER.load();
     const projects = loadProjects();
     let elapsedTime = getAllTimePeriods(projects);
-    if (TIMER && TIMER.started > 0) {
-      elapsedTime += (Date.now() - TIMER.started);
+    if (task && task.started > 0) {
+      elapsedTime += (Date.now() - task.started);
     }
     document.getElementById('accumulatedDisplay').innerText = formatMilliseconds(elapsedTime);
   };

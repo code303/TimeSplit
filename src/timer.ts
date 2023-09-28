@@ -1,53 +1,56 @@
+/// <reference path="task.ts"/>
 const TIMER = {
-    started: 0,
-    stopped: 0,
-    projectName: null,
-    taskDescription: 'taskDesc',
- 
-    load: function loadTimer() :void {
+    load: function loadTimer() :Task {
         if (window.localStorage) {
-            const stored = JSON.parse(window.localStorage.getItem('timer'));
+            const stored = JSON.parse(window.localStorage.getItem('task'));
             if (stored) {
-                TIMER.started = stored.started;
-                TIMER.stopped = stored.stopped;
-                TIMER.projectName = stored.projectName;
-                TIMER.taskDescription = stored.taskDescription;
+                return {
+                    started: stored.started,
+                    stopped: stored.stopped,
+                    projectName: stored.projectName,
+                    description: stored.description
+                }
+            } else {
+                return TIMER.initialize();
             }
         }
     },
 
-    store: function store() :void {
+    store: function store(task: Task) :void {
         if (window.localStorage) {
-            const timer = {
-                started: TIMER.started,
-                stopped: TIMER.stopped,
-                projectName: TIMER.projectName,
-                taskDescription: TIMER.taskDescription
+            const taskToSave = {
+                started: task.started,
+                stopped: task.stopped,
+                projectName: task.projectName,
+                description: task.description
             };
-            window.localStorage.setItem('timer', JSON.stringify(timer));
+            window.localStorage.setItem('task', JSON.stringify(taskToSave));
           }
     },
 
     remove: function remove() :void {
         if (window.localStorage) {
-            window.localStorage.removeItem('timer');
+            window.localStorage.removeItem('task');
         }
     },
 
-    initialize: function initialize() :void {
-        TIMER.started = 0;
-        TIMER.stopped = 0;
-        TIMER.projectName = '';
-        TIMER.taskDescription = '';
+    initialize: function initialize(): Task {
+        return {
+            started: 0,
+            stopped: 0,
+            projectName: '',
+            description: ''
+        };
     },
 
-    start: function start(projectName: string, taskDescription: string) :void {
-        TIMER.started = Date.now();
-        TIMER.projectName = projectName;
-        TIMER.taskDescription = taskDescription;
+    start: function start(task: Task, projectName: string, taskDescription: string): Task {
+        task.started = Date.now();
+        task.projectName = projectName;
+        task.description = taskDescription;
+        return task;
     },
 
-    stop: function stop() :void {
-        TIMER.stopped = Date.now();
+    stop: function stop(task: Task) :void {
+        task.stopped = Date.now();
     }
 };
