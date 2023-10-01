@@ -1,2 +1,4 @@
 # Build Folders
 node_modules
+build
+dist
