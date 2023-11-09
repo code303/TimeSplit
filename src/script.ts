@@ -14,14 +14,18 @@ type Project = {
 const handleStartClicked = (trigger: any, projectName: string, taskDescription: string): void => {
   console.log(`handleStartClicked ${projectName} - ${taskDescription}`);  
   deactivateAllButtons();
-  trigger.classList.add('active');
   const currentTask: Task = TIMER.load();
   if (currentTask.started > 0) {
     handleStopClicked({});      
   }
+  activateButton(trigger);
   const newTask = TIMER.initialize();
   TIMER.start(newTask, projectName, taskDescription);
   TIMER.store(newTask);
+};
+
+const activateButton = (button: any): void => {
+  button.classList.add('active');
 };
 
 const handleStopClicked = function handleStopClicked(ev: object): void {
@@ -62,6 +66,14 @@ const updateProject = (task: Task, projects: Project[]): void => {
   } else {
     project.ranges.push(range);
   }
+};
+
+const handleInputDevelopTyped = (ev) => {
+  const text = ev.target.value;
+  console.log('Text changed to: ' + text);
+  const task = TIMER.load();
+  task.description = text;
+  updateProject(task, loadProjects());
 };
 
 const findProjectByName = (projects: Project[], projectName: string): Project => {
@@ -109,18 +121,44 @@ const formatMilliseconds = (milliseconds: number): string => {
   return formattedTime;
 };
 
+const getHoursAndMinutesFromMilliseconds = (milliseconds: number): string => {
+  const formattedSeconds: string = formatMilliseconds(milliseconds);
+  return formattedSeconds.substring(0,5);
+};
+
 const startGuiUpdateTimer = (): void => {
   setInterval(updateAccumulatedDisplay, 1000);
+  setInterval(updateAllProjectTimerDisplays, 1000);
 };
 
 function registerEvents(): void {
   document.getElementById('stopbutton').addEventListener('click', handleStopClicked);
   document.getElementById('break').addEventListener('click', handleBreakClicked);
   document.getElementById('orga').addEventListener('click', handleOrgaClicked);
-  document.getElementById('develop').addEventListener('click', handleDevelopmentClicked);
+  document.getElementById('development').addEventListener('click', handleDevelopmentClicked);
   document.getElementById('bugfix').addEventListener('click', handleBugfixClicked);
   document.getElementById('documentation').addEventListener('click', handleDocumentationClicked);
   document.getElementById('research').addEventListener('click', handleResearchClicked);
+
+  document.getElementById('inputDevelop').addEventListener('input', handleInputDevelopTyped);
+};
+
+const updateAllProjectTimerDisplays = (): void => {
+  const projects: Project[] = loadProjects();
+  projects.forEach(project => {
+    let sum = 0;
+    project.ranges.forEach(range => {sum += (range.to - range.from)});
+    console.log("Project: " + project.name + " running for " + sum + " ms");
+    updateProjectTimerDisplay(project, sum);
+  });
+};
+
+const updateProjectTimerDisplay = (project: Project, elapsedMilliseconds: number) => {
+  const timerDisplay = document.getElementById('displayTime'+project.name);
+  if (timerDisplay) {
+    timerDisplay.innerText = getHoursAndMinutesFromMilliseconds(elapsedMilliseconds);
+  }
+
 };
 
 const loadProjects = (): Project[] => {

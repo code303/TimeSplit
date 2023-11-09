@@ -2,13 +2,13 @@
 const TIMER = {
     load: function loadTimer() :Task {
         if (window.localStorage) {
-            const stored = JSON.parse(window.localStorage.getItem('task'));
-            if (stored) {
+            const loadedTask = JSON.parse(window.localStorage.getItem('task'));
+            if (loadedTask) {
                 return {
-                    started: stored.started,
-                    stopped: stored.stopped,
-                    projectName: stored.projectName,
-                    description: stored.description
+                    started: loadedTask.started,
+                    stopped: loadedTask.stopped,
+                    projectName: loadedTask.projectName,
+                    description: loadedTask.description
                 }
             } else {
                 return TIMER.initialize();
