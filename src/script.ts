@@ -105,7 +105,7 @@ const getAllTimePeriods = (projects: Project[]): number => {
   return elapsedTime;
 };
 
-  // Format the time as HH:MM:SS
+// Convert the given timestamp in millis since 1970 into time string as HH:MM:SS
 const formatMilliseconds = (milliseconds: number): string => {
   const seconds = Math.floor(milliseconds / 1000);
   const hours = Math.floor(seconds / 3600);

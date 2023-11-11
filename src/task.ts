@@ -1,8 +1,8 @@
 type Task = {
-    started: number,
-    stopped: number,
-    projectName: string,
-    description: string
+    started: number;
+    stopped: number;
+    projectName: string;
+    description: string;
 };
 
 const TASK: Task = {
