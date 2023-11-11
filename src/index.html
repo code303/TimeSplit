@@ -1,27 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Time</title>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <h5>Split</h5>
-    <div class="grid-container">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeSplit</title>
+  <style>
+   </style>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>TimeSplit</h1>
+    <p>... tracking projects</p>
+  </header>
 
+  <section>
+
+    <div class="grid-container">
       <button class="timerStart" id="break">Pause</button><div class="clock" id="displayTimeBreak">--:--</div><input id="inputBreak">
       <button class="timerStart" id="orga">Orga</button><div class="clock" id="displayTimeOrga">01:12</div><input id="inputOrga">
       <button class="timerStart" id="development">Development</button><div class="clock" id="displayTimeDevelopment">--:--</div><input id="inputDevelop">
       <button class="timerStart" id="bugfix">Bugfixing</button><div class="clock" id="displayTimeBugfix">--:--</div><input id="inputBugfix">
       <button class="timerStart" id="documentation">Doku</button><div class="clock" id="displayTimeDocumentation">--:--</div><input id="inputDocumentaion">
       <button class="timerStart" id="research">Research</button><div class="clock" id="displayTimeResearch">--:--</div><input id="inputResearch">
+      <button id="stopbutton">Stop</button>
     </div>
-
     
-    <button id="stopbutton">Stop</button>
-    <div id="accumulatedDisplay"></div>
-    <script src="script.js"></script>
-  </body>
+  </section>
+  
+  <footer>
+    <div class="clock" id="accumulatedDisplay"></div>
+    <!--&copy; code303.-->
+  </footer>
+  <script src="script.js"></script>
+</body>
 </html>
