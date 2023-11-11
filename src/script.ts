@@ -1,14 +1,14 @@
 /// <reference path="timer.ts"/>
 
 type TimeRange = {
-  from: number,
-  to: number
+  from: number;
+  to: number;
 }
 
 type Project = {
-  name: string,
-  description: string,
-  ranges: TimeRange[]
+  name: string;
+  description: string;
+  ranges: TimeRange[];
 };
 
 const handleStartClicked = (trigger: any, projectName: string, taskDescription: string): void => {
