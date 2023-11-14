@@ -1,4 +1,5 @@
 /// <reference path="timer.ts"/>
+/// <reference path="config.ts"/>
 
 type TimeRange = {
   from: number;
@@ -8,19 +9,22 @@ type TimeRange = {
 type Project = {
   name: string;
   description: string;
+  category: string;
   ranges: TimeRange[];
 };
 
-const handleStartClicked = (trigger: any, projectName: string, taskDescription: string): void => {
-  console.log(`handleStartClicked ${projectName} - ${taskDescription}`);  
+const handleStartClicked = (trigger: any, projectName: string, taskDescription: string, category: string): void => {
   deactivateAllButtons();
   const currentTask: Task = TIMER.load();
   if (currentTask.started > 0) {
     handleStopClicked({});      
   }
   activateButton(trigger);
-  const newTask = TIMER.initialize();
-  TIMER.start(newTask, projectName, taskDescription);
+  const newTask = TIMER.initialize(projectName, taskDescription, category);
+  const projects = loadProjects();
+  updateProject(newTask, projects);
+  storeProjects(projects);
+  TIMER.start(newTask);
   TIMER.store(newTask);
 };
 
@@ -41,13 +45,6 @@ const handleStopClicked = function handleStopClicked(ev: object): void {
   deactivateAllButtons();
 };
   
-const handleBreakClicked = (ev) => { handleStartClicked(ev.target, "Break", ""); };
-const handleOrgaClicked = (ev) => { handleStartClicked(ev.target, "Orga", "Emails, iTrac"); };
-const handleDevelopmentClicked = (ev) => { handleStartClicked(ev.target, "Development", "coding..."); };
-const handleBugfixClicked = (ev) => { handleStartClicked(ev.target, "Bugfix", "fixing..."); };
-const handleDocumentationClicked = (ev) => { handleStartClicked(ev.target, "Documentation", "doc..."); };
-const handleResearchClicked = (ev) => { handleStartClicked(ev.target, "Research", "researching..."); };
-
 const deactivateAllButtons = () => {
   const buttons = document.getElementsByClassName('timerStart');
   Array.prototype.forEach.call(buttons, function(button) {button.classList.remove('active');});
@@ -82,7 +79,7 @@ const findProjectByName = (projects: Project[], projectName: string): Project =>
       return p;
     }
   };
-  return {name: '', description: '', ranges: []};
+  return {name: '', description: '', category: '', ranges: []};
 };
 
 const updateAccumulatedDisplay = (): void => {
@@ -133,14 +130,7 @@ const startGuiUpdateTimer = (): void => {
 
 function registerEvents(): void {
   document.getElementById('stopbutton').addEventListener('click', handleStopClicked);
-  document.getElementById('break').addEventListener('click', handleBreakClicked);
-  document.getElementById('orga').addEventListener('click', handleOrgaClicked);
-  document.getElementById('development').addEventListener('click', handleDevelopmentClicked);
-  document.getElementById('bugfix').addEventListener('click', handleBugfixClicked);
-  document.getElementById('documentation').addEventListener('click', handleDocumentationClicked);
-  document.getElementById('research').addEventListener('click', handleResearchClicked);
-
-  document.getElementById('inputDevelop').addEventListener('input', handleInputDevelopTyped);
+  //document.getElementById('inputDevelop').addEventListener('input', handleInputDevelopTyped);
 };
 
 const updateAllProjectTimerDisplays = (): void => {
@@ -148,7 +138,9 @@ const updateAllProjectTimerDisplays = (): void => {
   projects.forEach(project => {
     let sum = 0;
     project.ranges.forEach(range => {sum += (range.to - range.from)});
-    console.log("Project: " + project.name + " running for " + sum + " ms");
+    if (project.name === TIMER.load().projectName) {
+      sum += (Date.now() - TIMER.load().started);
+    }
     updateProjectTimerDisplay(project, sum);
   });
 };
@@ -183,7 +175,35 @@ const deleteProjects = (): void => {
   }
 };
 
+const generateHtmlElementsFromConfig = (): void => {
+  const config = CONFIG;
+  const container = document.getElementsByClassName('grid-container').item(0);
+  config.projects.forEach(project => {
+    const button = document.createElement('button');
+    button.id = project.name;
+    button.classList.add('timerStart');
+    button.innerText = project.name;
+    button.addEventListener('click', (ev) => {
+      handleStartClicked(ev.target, project.name, project.description, project.category);
+    });
+    container.appendChild(button);
+
+    const displayTime = document.createElement('span');
+    displayTime.id = 'displayTime' + project.name;
+    displayTime.innerText = '00:00';
+    displayTime.classList.add('clock');
+    container.appendChild(displayTime);
+
+    const description = document.createElement('input');
+    description.id = 'description' + project.name;
+    description.value = project.description;
+    container.appendChild(description);
+});
+
+};
+
 function main(): void  {
+  generateHtmlElementsFromConfig();
   registerEvents();
   startGuiUpdateTimer();
 };

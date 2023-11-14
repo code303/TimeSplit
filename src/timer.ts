@@ -3,7 +3,7 @@
 const TIMER = {
     load: (): Task => {
         const loadedTask = JSON.parse(window.localStorage?.getItem('task') ?? 'null');
-        return loadedTask ? { ...loadedTask } : TIMER.initialize();
+        return loadedTask ? { ...loadedTask } : TIMER.initialize('misc', '', 'misc');
     },
 
     store: (task: Task): void => {
@@ -14,19 +14,17 @@ const TIMER = {
         window.localStorage?.removeItem('task');
     },
 
-    initialize: (): Task => ({
+    initialize: (projectName: string, description: string, category: string): Task => ({
         started: 0,
         stopped: 0,
-        projectName: '',
-        description: '',
+        projectName: projectName ?? '',
+        description: description ?? '',
+        category: category ?? ''
     }),
 
-    start: (task: Task, projectName: string, taskDescription: string): Task => ({
-        ...task,
-        started: Date.now(),
-        projectName,
-        description: taskDescription,
-    }),
+    start: (task: Task): void => {
+        task.started = Date.now();
+    },
 
     stop: (task: Task): void => {
         task.stopped = Date.now();
