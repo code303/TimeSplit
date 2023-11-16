@@ -13,14 +13,15 @@ type Project = {
   ranges: TimeRange[];
 };
 
-const handleStartClicked = (trigger: any, projectName: string, taskDescription: string, category: string): void => {
+const handleStartClicked = (trigger: any, projectName: string): void => {
   deactivateAllButtons();
   const currentTask: Task = TIMER.load();
   if (currentTask.started > 0) {
     handleStopClicked({});      
   }
   activateButton(trigger);
-  const newTask = TIMER.initialize(projectName, taskDescription, category);
+  const input = document.getElementById('description' + projectName) as HTMLInputElement;
+  const newTask = TIMER.initialize(projectName, input.value);
   const projects = loadProjects();
   updateProject(newTask, projects);
   storeProjects(projects);
@@ -65,12 +66,12 @@ const updateProject = (task: Task, projects: Project[]): void => {
   }
 };
 
-const handleInputDevelopTyped = (ev) => {
-  const text = ev.target.value;
+const handleDetailsChanged = (eventTarget: EventTarget, projectName: string) => {
+  const text = (eventTarget as HTMLInputElement).value;
   console.log('Text changed to: ' + text);
-  const task = TIMER.load();
-  task.description = text;
-  updateProject(task, loadProjects());
+  const projects = loadProjects();
+  projects.filter(project => project.name === projectName).forEach(project => project.description = text);
+  storeProjects(projects);
 };
 
 const findProjectByName = (projects: Project[], projectName: string): Project => {
@@ -184,7 +185,7 @@ const generateHtmlElementsFromConfig = (): void => {
     button.classList.add('timerStart');
     button.innerText = project.name;
     button.addEventListener('click', (ev) => {
-      handleStartClicked(ev.target, project.name, project.description, project.category);
+      handleStartClicked(ev.target, project.name);
     });
     container.appendChild(button);
 
@@ -197,12 +198,20 @@ const generateHtmlElementsFromConfig = (): void => {
     const description = document.createElement('input');
     description.id = 'description' + project.name;
     description.value = project.description;
+    description.addEventListener('input', (ev) => {
+      handleDetailsChanged(ev.target, project.name);});
     container.appendChild(description);
 });
 
 };
 
+const setVerionInfo = (version: string): void => {
+  const versionInfo = document.getElementById('versionLabel');
+  versionInfo.innerText = version;
+};
+
 function main(): void  {
+  setVerionInfo(CONFIG.version);
   generateHtmlElementsFromConfig();
   registerEvents();
   startGuiUpdateTimer();

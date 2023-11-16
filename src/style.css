@@ -48,3 +48,15 @@ footer {
     background-color: #4caf50;
     border: 0px;
 }
+
+#versionLabel {
+    font-size: 0.5em;
+    color: #898989;
+    text-align: center;
+    padding: 3px;
+}
+
+input {
+    border: #f4f4f4;
+    border-style: solid;
+}
