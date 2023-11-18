@@ -16,7 +16,7 @@ type Project = {
 const handleStartClicked = (trigger: any, projectName: string): void => {
   deactivateAllButtons();
   const currentTask: Task = TIMER.load();
-  if (currentTask.started > 0) {
+  if (currentTask && currentTask.started > 0) {
     handleStopClicked({});      
   }
   activateButton(trigger);
@@ -72,6 +72,9 @@ const handleDetailsChanged = (eventTarget: EventTarget, projectName: string) => 
   const projects = loadProjects();
   projects.filter(project => project.name === projectName).forEach(project => project.description = text);
   storeProjects(projects);
+  const task = TIMER.load();
+  task.description = text;
+  TIMER.store(task);
 };
 
 const findProjectByName = (projects: Project[], projectName: string): Project => {
@@ -131,7 +134,6 @@ const startGuiUpdateTimer = (): void => {
 
 function registerEvents(): void {
   document.getElementById('stopbutton').addEventListener('click', handleStopClicked);
-  //document.getElementById('inputDevelop').addEventListener('input', handleInputDevelopTyped);
 };
 
 const updateAllProjectTimerDisplays = (): void => {
@@ -176,43 +178,69 @@ const deleteProjects = (): void => {
   }
 };
 
-const generateHtmlElementsFromConfig = (): void => {
+const initializeHtmlElements = (): void => {
   const config = CONFIG;
+  const task = TIMER.load();
   const container = document.getElementsByClassName('grid-container').item(0);
+  
   config.projects.forEach(project => {
-    const button = document.createElement('button');
-    button.id = project.name;
-    button.classList.add('timerStart');
-    button.innerText = project.name;
-    button.addEventListener('click', (ev) => {
-      handleStartClicked(ev.target, project.name);
-    });
+    const button = generateButton(project.name, task);
     container.appendChild(button);
 
-    const displayTime = document.createElement('span');
-    displayTime.id = 'displayTime' + project.name;
-    displayTime.innerText = '00:00';
-    displayTime.classList.add('clock');
+    const displayTime = generateClockDisplay(project.name, task);
     container.appendChild(displayTime);
 
-    const description = document.createElement('input');
-    description.id = 'description' + project.name;
-    description.value = project.description;
-    description.addEventListener('input', (ev) => {
-      handleDetailsChanged(ev.target, project.name);});
+    const description = generateTaskDescriptionInputField(task, project.name, project.description);
     container.appendChild(description);
-});
-
+  });
 };
 
-const setVerionInfo = (version: string): void => {
-  const versionInfo = document.getElementById('versionLabel');
-  versionInfo.innerText = version;
+const generateButton = (projectName: string, task: Task): HTMLButtonElement => {
+  const button = document.createElement('button');
+  button.id = projectName;
+  button.classList.add('timerStart');
+  if (task && task.projectName === projectName) {
+    button.classList.add('active');
+  }
+  button.innerText = projectName;
+  button.addEventListener('click', (ev) => {
+    handleStartClicked(ev.target, projectName);
+  });
+  return button;
+};
+
+const generateClockDisplay = (projectName: string, task: Task): HTMLSpanElement => {
+  const displayTime = document.createElement('span');
+  displayTime.id = 'displayTime' + projectName;
+  if (task && task.projectName === projectName) {
+    displayTime.innerText = formatMilliseconds(Date.now() - task.started);
+  } else {
+    displayTime.innerText = '00:00';
+  }
+  displayTime.classList.add('clock');
+  return displayTime;
+}
+
+const generateTaskDescriptionInputField = (task: Task, projectName: string, defaultDescription: string): HTMLInputElement => {
+  const input = document.createElement('input');
+  input.id = 'description' + projectName;
+  if (task && task.projectName === projectName) {
+    input.value = task.description;
+  } else {
+    input.value = defaultDescription;
+  }
+  input.addEventListener('input', (ev) => {
+    handleDetailsChanged(ev.target, projectName);});
+  return input;
+}
+
+const setVersionInfo = (version: string): void => {
+  document.getElementById('versionLabel').innerText = version;
 };
 
 function main(): void  {
-  setVerionInfo(CONFIG.version);
-  generateHtmlElementsFromConfig();
+  setVersionInfo(CONFIG.version);
+  initializeHtmlElements();
   registerEvents();
   startGuiUpdateTimer();
 };

@@ -2,8 +2,7 @@
 
 const TIMER = {
     load: (): Task => {
-        const loadedTask = JSON.parse(window.localStorage?.getItem('task') ?? 'null');
-        return loadedTask ? { ...loadedTask } : TIMER.initialize('misc', '');
+        return JSON.parse(window.localStorage?.getItem('task') ?? 'null');
     },
 
     store: (task: Task): void => {
