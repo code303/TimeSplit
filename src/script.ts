@@ -90,7 +90,7 @@ const updateAccumulatedDisplay = (): void => {
   const task = TIMER.load();
   const projects = loadProjects();
   let elapsedTime = getAllTimePeriods(projects);
-  if (task && task.started > 0) {
+  if (task && (task.projectName !== 'break') && task.started > 0) {
     elapsedTime += (Date.now() - task.started);
   }
   document.getElementById('accumulatedDisplay').innerText = formatMilliseconds(elapsedTime);
@@ -98,7 +98,7 @@ const updateAccumulatedDisplay = (): void => {
 
 const getAllTimePeriods = (projects: Project[]): number => {
   let elapsedTime = 0;
-  projects.forEach(project => {
+  projects.filter(p => p.name !== 'break').forEach(project => {
     project.ranges.forEach((range: TimeRange) => {
       elapsedTime += (range.to - range.from);
     });
@@ -181,16 +181,18 @@ const deleteProjects = (): void => {
 const initializeHtmlElements = (): void => {
   const config = CONFIG;
   const task = TIMER.load();
+  const projects = loadProjects();
   const container = document.getElementsByClassName('grid-container').item(0);
   
-  config.projects.forEach(project => {
-    const button = generateButton(project.name, task);
+  config.projects.forEach(configProject => {
+    const button = generateButton(configProject.name, task);
+    const project = findProjectByName(projects, configProject.name);
     container.appendChild(button);
 
-    const displayTime = generateClockDisplay(project.name, task);
+    const displayTime = generateClockDisplay(configProject.name, task);
     container.appendChild(displayTime);
 
-    const description = generateTaskDescriptionInputField(task, project.name, project.description);
+    const description = generateTaskInput(task, configProject.name, project.description, configProject.description);
     container.appendChild(description);
   });
 };
@@ -221,11 +223,13 @@ const generateClockDisplay = (projectName: string, task: Task): HTMLSpanElement 
   return displayTime;
 }
 
-const generateTaskDescriptionInputField = (task: Task, projectName: string, defaultDescription: string): HTMLInputElement => {
+const generateTaskInput = (task: Task, projectName: string, projectDescription: string, defaultDescription: string): HTMLInputElement => {
   const input = document.createElement('input');
   input.id = 'description' + projectName;
   if (task && task.projectName === projectName) {
     input.value = task.description;
+  } else if (projectDescription) {
+    input.value = projectDescription;
   } else {
     input.value = defaultDescription;
   }
