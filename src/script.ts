@@ -243,7 +243,8 @@ const setVersionInfo = (version: string): void => {
 };
 
 const saveDay = (): void => {
-  const today = addDays(new Date(), 1);
+  //const today = addDays(new Date(), 1);
+  const today = new Date();
   const projects = loadProjects();
   const dayOfTask = getDayFromProjects(projects);
   if (window.localStorage && projects.length > 1 && today.getDate() !== dayOfTask.getDate()) {
@@ -253,20 +254,19 @@ const saveDay = (): void => {
   deleteProjects();
 };
 
-const addDays = function(date: Date, days: number): Date {
+const addDays = (date: Date, days: number): Date => {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
-}
+};
 
 const getDayFromProjects = (projects: Project[]): Date => {
   if (projects.length > 0) {
     for (const project of projects) {
-      for (const range of project.ranges) {
-        if (range.from > 0) {
-          return new Date(range.from);
-        }
-      }  
+      const range = project.ranges.find(r => r.from > 0);
+      if (range) {
+        return new Date(range.from);
+      }
     }
   }
   return new Date();
@@ -277,7 +277,7 @@ const formatTimeStamp = (date: Date, format: string): string => {
   const month = date.getMonth() + 1;
   const day = date.getDate();
   return format.replace('yyyy', year.toString()).replace('MM', month.toString().padStart(2, '0')).replace('dd', day.toString().padStart(2, '0'));
-}
+};
 
 function main(): void  {
   setVersionInfo(CONFIG.version);
