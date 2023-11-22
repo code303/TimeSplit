@@ -242,8 +242,46 @@ const setVersionInfo = (version: string): void => {
   document.getElementById('versionLabel').innerText = version;
 };
 
+const saveDay = (): void => {
+  const today = addDays(new Date(), 1);
+  const projects = loadProjects();
+  const dayOfTask = getDayFromProjects(projects);
+  if (window.localStorage && projects.length > 1 && today.getDate() !== dayOfTask.getDate()) {
+    const isoDate = formatTimeStamp(dayOfTask, 'yyyy-MM-dd');
+    window.localStorage.setItem(isoDate, JSON.stringify(projects, null, 2));
+  }
+  deleteProjects();
+};
+
+const addDays = function(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+const getDayFromProjects = (projects: Project[]): Date => {
+  if (projects.length > 0) {
+    for (const project of projects) {
+      for (const range of project.ranges) {
+        if (range.from > 0) {
+          return new Date(range.from);
+        }
+      }  
+    }
+  }
+  return new Date();
+};
+
+const formatTimeStamp = (date: Date, format: string): string => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return format.replace('yyyy', year.toString()).replace('MM', month.toString().padStart(2, '0')).replace('dd', day.toString().padStart(2, '0'));
+}
+
 function main(): void  {
   setVersionInfo(CONFIG.version);
+  saveDay();
   initializeHtmlElements();
   registerEvents();
   startGuiUpdateTimer();
